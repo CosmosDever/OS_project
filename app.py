@@ -2,16 +2,19 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import HRRN
 import SRTF
+import SJF
+import PRIORITY
 import random_proc
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Sample data
 process_data = [
-    {'id': 0, 'arrival': 0, 'execution': 7},
-    {'id': 1, 'arrival': 2, 'execution': 4},
-    {'id': 2, 'arrival': 4, 'execution': 1},
-    {'id': 3, 'arrival': 5, 'execution': 4}
+    {"id": 0, "arrival": 0, "execution": 7, "priority": 2},
+    {"id": 1, "arrival": 2, "execution": 4, "priority": 1},
+    {"id": 2, "arrival": 4, "execution": 1, "priority": 3},
+    {"id": 3, "arrival": 5, "execution": 4, "priority": 2}
+    
 ]
 
 class SchedulerApp:
@@ -22,11 +25,11 @@ class SchedulerApp:
 
         # Sample data
         self.process_data = [
-            {'id': 0, 'arrival': 2, 'execution': 5},
-            {'id': 1, 'arrival': 1, 'execution': 8},
-            {'id': 2, 'arrival': 4, 'execution': 6},
-            {'id': 3, 'arrival': 3, 'execution': 2},
-            {'id': 4, 'arrival': 0, 'execution': 9}
+            {"id": 0, "arrival": 0, "execution": 7, "priority": 2},
+            {"id": 1, "arrival": 2, "execution": 4, "priority": 1},
+            {"id": 2, "arrival": 4, "execution": 1, "priority": 3},
+            {"id": 3, "arrival": 5, "execution": 4, "priority": 2}
+          
         ]
 
         # Frame for algorithm selection
@@ -34,7 +37,7 @@ class SchedulerApp:
         self.algorithm_frame.pack(pady=10)
 
         # Dropdown for selecting algorithm
-        self.algorithms = ['HRRN', 'SRTF']  # Add other algorithms here
+        self.algorithms = ['HRRN', 'SRTF','SJF','PRIORITY']  # Add other algorithms here
         self.selected_algorithm = tk.StringVar()
         self.selected_algorithm.set(self.algorithms[0])
 
@@ -47,7 +50,7 @@ class SchedulerApp:
         self.run_button.grid(row=0, column=2, padx=5, pady=5)
 
         #input number of random process
-        self.random_process_label = tk.Label(self.algorithm_frame, text="Number of Random Processes(more than 5):")
+        self.random_process_label = tk.Label(self.algorithm_frame, text="Number of Random Processes")
         self.random_process_label.grid(row=0, column=4, padx=5, pady=5)
         self.random_process_entry = tk.Entry(self.algorithm_frame)
         self.random_process_entry.grid(row=0, column=5, padx=5, pady=5)
@@ -72,9 +75,13 @@ class SchedulerApp:
         self.execution_entry = tk.Entry(self.input_frame)
         self.execution_entry.grid(row=0, column=5)
 
+        tk.Label(self.input_frame, text="Priority:").grid(row=0, column=6)
+        self.priority_entry = tk.Entry(self.input_frame)
+        self.priority_entry.grid(row=0, column=7)
+
         # Button to add a process
         self.add_process_button = tk.Button(self.input_frame, text="Add Process", command=self.add_process)
-        self.add_process_button.grid(row=0, column=6, padx=5, pady=5)
+        self.add_process_button.grid(row=0, column=8, padx=5, pady=5)
 
         # Table for process data
         self.process_frame = tk.Frame(root)
@@ -108,7 +115,7 @@ class SchedulerApp:
     
     def add_random_process(self):
         num_processes = int(self.random_process_entry.get())
-        process_data = random_proc.generate_process_data(num_processes)
+        process_data = random_proc.generate_process_data(num_processes,self.process_data)
         for proc in process_data:
             self.process_data.append(proc)
         self.update_process_table()
@@ -116,16 +123,17 @@ class SchedulerApp:
         """Create a table that displays the process data."""
         tk.Label(self.process_frame, text="Process Data", font=('Arial', 16)).pack(pady=10)
 
-        columns = ('ID', 'Arrival Time', 'Execution Time')
+        columns = ('ID', 'Arrival Time', 'Execution Time', 'Priority')
         self.tree = ttk.Treeview(self.process_frame, columns=columns, show='headings')
         self.tree.heading('ID', text='ID')
         self.tree.heading('Arrival Time', text='Arrival Time')
         self.tree.heading('Execution Time', text='Execution Time')
+        self.tree.heading('Priority', text='Priority')
+
 
         # Insert process data into the table
         for proc in self.process_data:
-            self.tree.insert('', tk.END, values=(proc['id'], proc['arrival'], proc['execution']))
-
+            self.tree.insert('', tk.END, values=(proc['id'], proc['arrival'], proc['execution'],proc['priority']))
         self.tree.pack(pady=10)
 
     def add_process(self):
@@ -134,19 +142,21 @@ class SchedulerApp:
             proc_id = int(self.id_entry.get())
             arrival = int(self.arrival_entry.get())
             execution = int(self.execution_entry.get())
+            priority = int(self.priority_entry.get())
 
             # Validate inputs
             if any(proc['id'] == proc_id for proc in self.process_data):
                 messagebox.showerror("Error", "Process ID must be unique.")
                 return
 
-            new_process = {'id': proc_id, 'arrival': arrival, 'execution': execution}
+            new_process = {'id': proc_id, 'arrival': arrival, 'execution': execution, 'priority': priority}
             self.process_data.append(new_process)
 
             # Clear the entries
             self.id_entry.delete(0, tk.END)
             self.arrival_entry.delete(0, tk.END)
             self.execution_entry.delete(0, tk.END)
+            self.priority_entry.delete(0, tk.END)
 
             # Update the process table
             self.update_process_table()
@@ -162,7 +172,7 @@ class SchedulerApp:
 
         # Insert updated process data into the table
         for proc in self.process_data:
-            self.tree.insert('', tk.END, values=(proc['id'], proc['arrival'], proc['execution']))
+            self.tree.insert('', tk.END, values=(proc['id'], proc['arrival'], proc['execution'],proc['priority']))
 
     def run_simulation(self):
         """Run the selected scheduling algorithm and display the result."""
@@ -175,7 +185,11 @@ class SchedulerApp:
         if algorithm == 'HRRN':
             result = HRRN.HRRN(self.process_data)
         elif algorithm == 'SRTF':
-            result = SRTF.SRTF(self.process_data)    
+            result = SRTF.SRTF(self.process_data)
+        elif algorithm == 'SJF':
+            result = SJF.sjf_non_preemptive(self.process_data)   
+        elif algorithm == 'PRIORITY':
+            result = PRIORITY.priority_scheduling(self.process_data)         
         else:
             messagebox.showerror("Error", f"Algorithm {algorithm} is not implemented.")
             return

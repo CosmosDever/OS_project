@@ -57,16 +57,16 @@ def sjf_non_preemptive(queue):
         "total_execution_time": total_execution_time
     }
 
-proc = [
-    {"id": 0, "arrival": 1, "execution": 3},
-    {"id": 1, "arrival": 3, "execution": 6},
-    {"id": 2, "arrival": 5, "execution": 8},
-    {"id": 3, "arrival": 7, "execution": 4},
-    {"id": 4, "arrival": 8, "execution": 5}
-]
+# proc = [
+#     {"id": 0, "arrival": 1, "execution": 3},
+#     {"id": 1, "arrival": 3, "execution": 6},
+#     {"id": 2, "arrival": 5, "execution": 8},
+#     {"id": 3, "arrival": 7, "execution": 4},
+#     {"id": 4, "arrival": 8, "execution": 5}
+# ]
 
-result = sjf_non_preemptive(proc)
-print("Execution Order:", result["execution_order"])
-print("Average Waiting Time:", result["average_waiting_time"])
-print("Average Turnaround Time:", result["average_turnaround_time"])
-print("Total Execution Time:", result["total_execution_time"])
+# result = sjf_non_preemptive(proc)
+# print("Execution Order:", result["execution_order"])
+# print("Average Waiting Time:", result["average_waiting_time"])
+# print("Average Turnaround Time:", result["average_turnaround_time"])
+# print("Total Execution Time:", result["total_execution_time"])
