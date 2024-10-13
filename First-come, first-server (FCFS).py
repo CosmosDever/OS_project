@@ -14,9 +14,9 @@ def FCFS(proc):
             t = p["arrival"]
 
         # บันทึกเวลาที่ process เริ่มทำงานและ ID ของ process
-        process_order.append((t, p["id"]))
+        process_order.append({"time" : t,"proc_id" : p["id"]})
 
-        
+        # คำนวณcompleted time, waiting time และ turnaround time
         t += p["execution"]
         total_execution_time += p["execution"]
         turnaround_time = t - p["arrival"]
@@ -38,6 +38,8 @@ def FCFS(proc):
     }
 
     return result
+
+
 
 proc = [
     {"id": 0, "arrival": 1, "execution": 3},
