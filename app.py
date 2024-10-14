@@ -4,6 +4,9 @@ import HRRN
 import SRTF
 import SJF
 import PRIORITY
+import FCFS
+import MLFQ
+import RR
 import random_proc
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -37,14 +40,15 @@ class SchedulerApp:
         self.algorithm_frame.pack(pady=10)
 
         # Dropdown for selecting algorithm
-        self.algorithms = ['HRRN', 'SRTF','SJF','PRIORITY']  # Add other algorithms here
+        self.algorithms = ['HRRN', 'SRTF','SJF','PRIORITY','FCFS','MLFQ','RR']  # Add other algorithms here
         self.selected_algorithm = tk.StringVar()
         self.selected_algorithm.set(self.algorithms[0])
 
         tk.Label(self.algorithm_frame, text="Select Scheduling Algorithm:").grid(row=0, column=0, padx=5, pady=5)
         self.algo_menu = ttk.Combobox(self.algorithm_frame, values=self.algorithms, textvariable=self.selected_algorithm)
         self.algo_menu.grid(row=0, column=1, padx=5, pady=5)
-
+        
+       
         # Button to run the simulation
         self.run_button = tk.Button(self.algorithm_frame, text="Run Simulation", command=self.run_simulation)
         self.run_button.grid(row=0, column=2, padx=5, pady=5)
@@ -82,6 +86,13 @@ class SchedulerApp:
         # Button to add a process
         self.add_process_button = tk.Button(self.input_frame, text="Add Process", command=self.add_process)
         self.add_process_button.grid(row=0, column=8, padx=5, pady=5)
+        
+        # Entry for quantum
+        self.quantum_label = tk.Label(self.algorithm_frame, text="Quantum:")
+        self.quantum_label.grid(row=0, column=9, padx=5, pady=5)
+        self.quantum_entry = tk.Entry(self.algorithm_frame)
+        self.quantum_entry.grid(row=0, column=10, padx=5, pady=5)
+
 
         # Table for process data
         self.process_frame = tk.Frame(root)
@@ -101,6 +112,17 @@ class SchedulerApp:
         # Frame for the Gantt chart
         self.chart_frame = tk.Frame(root)
         self.chart_frame.pack(pady=10)
+    
+    #quantum input
+    def get_quantum(self):
+        try:
+            quantum = int(self.quantum_entry.get())
+            return quantum
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid integer value for quantum.")
+            return None
+        
+        
     def set_dynamic_geometry(self):
         """Set the window size dynamically based on the number of processes."""
         base_width = 1920  # Base width for the window
@@ -189,7 +211,19 @@ class SchedulerApp:
         elif algorithm == 'SJF':
             result = SJF.sjf_non_preemptive(self.process_data)   
         elif algorithm == 'PRIORITY':
-            result = PRIORITY.priority_scheduling(self.process_data)         
+            result = PRIORITY.priority_scheduling(self.process_data)
+        elif algorithm == 'FCFS':
+            result = FCFS.FCFS(self.process_data)
+        elif algorithm == 'MLFQ':
+            quantum = self.get_quantum()
+            if quantum is None:
+                return
+            result = MLFQ.multilevel_feedback(self.process_data, quantum)
+        elif algorithm == 'RR':
+            quantum = self.get_quantum()
+            if quantum is None:
+                return
+            result = RR.RR(self.process_data, quantum)                     
         else:
             messagebox.showerror("Error", f"Algorithm {algorithm} is not implemented.")
             return
