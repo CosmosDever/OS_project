@@ -3,7 +3,7 @@ from tkinter import ttk, messagebox
 import HRRN
 import SRTF
 import SJF
-import PRIORITY
+import PR
 import FCFS
 import MLFQ
 import RR
@@ -211,7 +211,7 @@ class SchedulerApp:
         elif algorithm == 'SJF':
             result = SJF.sjf_non_preemptive(self.process_data)   
         elif algorithm == 'PRIORITY':
-            result = PRIORITY.priority_scheduling(self.process_data)
+            result = PR.priority_scheduling(self.process_data)
         elif algorithm == 'FCFS':
             result = FCFS.FCFS(self.process_data)
         elif algorithm == 'MLFQ':
